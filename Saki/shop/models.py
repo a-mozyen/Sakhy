@@ -12,7 +12,7 @@ class Store(models.Model):
 
 class Coupon(models.Model):
     coupon_id = models.AutoField(primary_key=True)
-    coupon_price = models.FloatField(unique=True)
+    coupon_price = models.FloatField()
     store_id = models.ForeignKey("Store", on_delete=models.PROTECT)
 
 
@@ -23,3 +23,4 @@ class Order(models.Model):
     user_id = models.ForeignKey(User, on_delete=models.PROTECT)
     order_date = models.DateTimeField(auto_now_add=True)
     order_amount = models.IntegerField()
+    shipped = models.BooleanField(default=False)

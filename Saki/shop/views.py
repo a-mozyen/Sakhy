@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status, exceptions
 from .serializers import (StoreSerializer, CouponSerializer, OrderSerializer, 
                           AddStoreSerializer, AddCouponSerializer)
+from user.serializers import UserSerializer
 from .models import Store, Coupon, Order
 from user.models import User
 from user.authentications import CustomAuthentication
@@ -83,10 +84,11 @@ class Orders(APIView):
             raise exceptions.APIException(detail="Coupon not found")
 
         if user.wallet >= coupon.coupon_price:
-            user.wallet -= coupon.coupon_price
+            total = coupon.coupon_price * order_amount
+            user.wallet -= total
             user.save()
         else:
-            raise exceptions.APIException(detail="Insufficient funds in your wallet")
+            raise exceptions.APIException(detail="Insufficient funds", code=status.HTTP_400_BAD_REQUEST)
 
         if not order_amount:
             order_amount = 1
@@ -95,8 +97,8 @@ class Orders(APIView):
             user_id=user, store_id=store, coupon_id=coupon, order_amount=order_amount
         )
 
-        serializer = OrderSerializer(instance=order)
-        return Response(data=serializer.data)
+        OrderSerializer(instance=order)
+        return Response(data='Order placed', status=status.HTTP_200_OK)
 
 
 class UserOrders(APIView):
