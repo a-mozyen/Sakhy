@@ -113,7 +113,7 @@ class UserOrders(APIView):
         orders = Order.objects.filter(user_id=request.user.id)
 
         if not orders:
-            return exceptions.APIException(detail="No orders found")
+            return Response(data="No orders found", status=status.HTTP_204_NO_CONTENT)
 
         serializer = OrderSerializer(orders, many=True)
 
