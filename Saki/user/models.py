@@ -1,6 +1,6 @@
+
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
-from django.contrib.auth.hashers import make_password
 from django.core.validators import MinLengthValidator
 
 class UserManager(BaseUserManager):
@@ -8,7 +8,6 @@ class UserManager(BaseUserManager):
         self,
         username,
         email,
-        password,
         country_code,
         phone,
         wallet,
@@ -21,7 +20,6 @@ class UserManager(BaseUserManager):
         user = self.model()
         user.username = username
         user.email = email
-        user.password = password
         user.country_code = country_code
         user.phone = phone
         user.wallet = wallet
@@ -34,9 +32,9 @@ class UserManager(BaseUserManager):
         user.save()
         return user
 
-    def create_superuser(self, email, password, is_admin=True, is_active=True):
+    def create_superuser(self, email, phone, country_code,is_admin=True, is_active=True):
         user = self.model(
-            email=email, password=password, is_admin=is_admin, is_active=is_active
+            email=email, phone=phone, country_code=country_code, is_admin=is_admin, is_active=is_active
         )
 
         user.save()
@@ -45,10 +43,10 @@ class UserManager(BaseUserManager):
 
 class User(AbstractBaseUser):
     id = models.AutoField(primary_key=True)
-    username = models.CharField(max_length=25, unique=True)
-    email = models.EmailField(unique=True)
-    password = models.CharField(max_length=50)
-    phone = models.CharField(max_length=9, validators=[MinLengthValidator(limit_value=9)], unique=True, null=True)
+    username = models.CharField(max_length=20, unique=True, null=True)
+    email = models.EmailField(unique=True, null=True)
+    country_code = models.CharField(max_length=10)
+    phone = models.CharField(max_length=9, validators=[MinLengthValidator(limit_value=9)], unique=True)
     wallet = models.FloatField(default=0)
     income = models.IntegerField(null=True)
     income_source = models.CharField(max_length=15, null=True)
@@ -56,15 +54,15 @@ class User(AbstractBaseUser):
     last_login = None
     is_admin = False
     is_active = True
+    password = None
 
     objects = UserManager()
 
-    USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["password"]
+    USERNAME_FIELD = "phone"
+    REQUIRED_FIELDS = ['country_code']
 
     def save(self, *args, **kwargs):
         self.email = self.email.lower()
-        self.password = make_password(self.password)
         super(User, self).save(*args, **kwargs)
 
     def __str__(self):

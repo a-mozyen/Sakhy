@@ -22,15 +22,8 @@ class Register(APIView):
 class Login(APIView):
     def post(self, request):
         try:
-            email = request.data.get("email")
-            email = email.lower()
-            user = User.objects.get(email=email)
-        except:
-            raise APIException(detail="Wrong credentials")
-
-        try:
-            password = request.data.get("password")
-            check_password(password=password, encoded=user.password)
+            phone = request.data.get("phone")
+            user = User.objects.get(phone=phone)
         except:
             raise APIException(detail="Wrong credentials")
 
