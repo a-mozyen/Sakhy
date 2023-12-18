@@ -22,13 +22,13 @@ class CustomAuthentication(BaseAuthentication):
         return (user, None)
 
 
-def create_token(id: int, username: str, email: str):
+def create_token(id: int, username: str, phone: str):
     payload = dict(
         id=id,
         username=username,
-        email=email,
+        phone=phone,
         exp=datetime.utcnow() + timedelta(hours=2),
         iat=datetime.utcnow(),
     )
-    token = jwt.encode(payload, "jwt-secret", algorithm="HS256")
+    token = jwt.encode(payload=payload, key="jwt-secret", algorithm="HS256")
     return token
