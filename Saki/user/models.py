@@ -1,3 +1,4 @@
+
 from django.db import models
 from django.contrib.auth.models import BaseUserManager, AbstractBaseUser
 from django.core.validators import MinLengthValidator
@@ -33,6 +34,7 @@ class UserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, phone, country_code, is_admin=True, is_active=True):
+
         user = self.model(
             email=email, phone=phone, country_code=country_code, is_admin=is_admin, is_active=is_active
         )
@@ -55,6 +57,7 @@ class User(AbstractBaseUser):
     last_login = None
     is_admin = False
     is_active = True
+    password = None
 
     objects = UserManager()
 
@@ -64,6 +67,7 @@ class User(AbstractBaseUser):
     # def save(self, *args, **kwargs):
     #     self.email = self.email.lower()
     #     super(User, self).save(*args, **kwargs)
+
 
     def __str__(self):
         return self.username

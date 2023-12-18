@@ -73,7 +73,6 @@ class Verify_Otp(APIView):
             otp_code = request.data.get('code')
             otp_data = Otp.objects.get(code=otp_code)
             user = User.objects.get(username=otp_data.user)
-
         except:
             raise APIException(detail='Wrong code')
         
