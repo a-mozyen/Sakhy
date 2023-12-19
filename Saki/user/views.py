@@ -8,6 +8,7 @@ from .authentications import CustomAuthentication, create_token
 from .serializers import UserSerializer
 from .models import User, Otp
 from random import randint
+from keys import unifonic_key
 import requests
 
 
@@ -36,32 +37,31 @@ class Login(APIView):
         try:
             user = User.objects.get(phone=phone)
         except:
-            raise APIException(detail='Phone number not found!')
+            raise APIException(detail='Phone number not registered!')
         
         code = user.country_code.lstrip('+')
         phone = code+phone
         otp = randint(1000, 9999)
-        
-        # url = 'https://el.cloud.unifonic.com/rest/SMS/messages'
-        # param = {
-        #     "AppSid": "hQAqafSG6BAbBpmSp6Yj4f93MNS0KL",
-        #     "Recipient": phone,
-        #     "Body": f"Your login code {otp}",
-        # }
-        
-        otp_duration = timezone.now()+timezone.timedelta(minutes=5)
 
         Otp.objects.create(
             user=user,
             code=otp,
-            expirey=otp_duration,
+            expirey=timezone.now()+timezone.timedelta(minutes=5),
             utilized=False
         )
         
-        # otp_response = requests.post(url=url, data=param)
-        # if otp_response.status_code != 200:
-        #     return otp_response
-        return Response(data='OTP code sent')
+        # sending a request to unufonic api.
+        url = 'https://el.cloud.unifonic.com/rest/SMS/messages'
+        param = {
+            "AppSid": unifonic_key,
+            "Recipient": phone,
+            "Body": f"Your login code {otp}",
+        }
+        otp_response = requests.post(url=url, data=param)
+        if otp_response.status_code == 200:
+            return otp_response
+        
+        return Response(data=f'OTP code sent to {phone}', status=status.HTTP_200_OK)
     
 
 class Verify_Otp(APIView):
@@ -141,6 +141,10 @@ class UserProfile(APIView):
 
 
 class Logout(APIView):
+    '''
+    Take no data. 
+    When post sent, authenticatoin token is deleted.
+    '''
     authentication_classes = [
         CustomAuthentication,
     ]
