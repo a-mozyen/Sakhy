@@ -55,11 +55,14 @@ class Login(APIView):
         param = {
             "AppSid": unifonic_key,
             "Recipient": phone,
-            "Body": f"Your login code {otp}",
+            "Body": f"Your login code {otp}"
         }
-        otp_response = requests.post(url=url, data=param)
-        if otp_response.status_code == 200:
-            return otp_response
+        
+        response = requests.post(url=url, data=param)
+        data = response.json()
+        
+        with open('D:\github\Saki\Saki\OTP_log.txt', 'w') as log:
+            log.write(f'user:{user.username} log:{data}')
         
         return Response(data=f'OTP code sent to {phone}', status=status.HTTP_200_OK)
     

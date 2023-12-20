@@ -26,7 +26,7 @@ SECRET_KEY = django_secret_key
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['64.227.113.135']
+ALLOWED_HOSTS = ['64.227.113.135', 'localhost']
 
 
 # Application definition
@@ -128,10 +128,6 @@ STATIC_URL = "/static/"
 STATIC_ROOT = '/var/www/static'
 #MEDIA_URL = 
 #MEDIA_ROOT = 
-#STATICFILES_DIRS = (
-#    os.path.join(BASE_DIR, 'static'),
-#)
-
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
