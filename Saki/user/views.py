@@ -14,7 +14,7 @@ import requests
 
 class Register(APIView):
     '''
-    Required fields {"username": "<your username>, "phone": "<your phone number>", "country_code": "<your country code>"}
+    Required fields {"username": "<str: your username>", "phone": "<str: your phone number>", "country_code": "<str: your country code>"}
     Note: phone number is a 9 digit without '0' at the beginning .ex (504XXXXXX).
           Enter country code with '+' .ex(+966), default is (+966).
     '''
@@ -29,7 +29,8 @@ class Register(APIView):
 
 class Login(APIView):
     '''
-    Take the phone number and send an otp code to the user.
+    field {"phone": "<str: your phone number>"}
+    Take the phone number and send an otp code to the given phone number.
     phone number is a 9 digit without '0' at the beginning .ex (504XXXXXX).
     '''
     def post(self, request):
@@ -69,7 +70,8 @@ class Login(APIView):
 
 class Verify_Otp(APIView):
     '''
-    Verify the entered otp code to the generated code.
+    field {"code": <int: received code>}
+    Verify the entered otp code to the generated code. Then, generate token.
     '''
     def post(self, request):
         try:
@@ -146,7 +148,7 @@ class UserProfile(APIView):
 class Logout(APIView):
     '''
     Take no data. 
-    When post sent, authenticatoin token is deleted.
+    When post sent, token is deleted.
     '''
     authentication_classes = [
         CustomAuthentication,
