@@ -13,8 +13,8 @@ import json
 
 
 class GetToken(APIView):
-    def post():
-        url = "https://daleelapi.com/api/v1/oauth/token"
+    def get(self, request):
+        endpoint = "https://daleelapi.com/api/v1/oauth/token"
 
         payload = {
             'grant_type': 'password',
@@ -24,14 +24,28 @@ class GetToken(APIView):
             'password': 'ABC12345'
             }
         
-        headers = {
+        header = {
         'Content-Type': 'application/json'
         }
 
-        response = requests.post(url=url, headers=headers, data=payload)
+        response = requests.post(
+            url="https://daleelapi.com/api/v1/oauth/token", 
+            params= None,
+            headers={'Content-Type': 'application/json'}, 
+            data={
+            'grant_type': 'password',
+            'client_id': '2',
+            'client_secret': 'D1uvg3aUd79fDIvqduYlaV3q1b59XztrPPooADyDrIo=',
+            'username': 'merchants.api@daleelstore.com',
+            'password': 'ABC12345'
+            },
+            auth= None,
+            allow_redirects= True
+            )
         token = response.json()
         
-        return token
+        return Response(data=token)
+    
     # curl -X POST "https://daleelapi.com/api/v1/oauth/token" -H "Content-Type: application/json" -d '{"grant_type": "password", "client_id": "2", "client_secret": "D1uvg3aUd79fDIvqduYlaV3q1b59XztrPPooADyDrIo=", "username": "merchants.api@daleelstore.com", "password": "ABC12345"}'
     
 
