@@ -13,8 +13,8 @@ import json
 
 
 class GetToken(APIView):
-    def get(self, request):
-        endpoint = "https://daleelapi.com/api/v1/oauth/token"
+    def post(self, request):
+        url = "https://daleelapi.com/api/v1/oauth/token"
 
         payload = {
             'grant_type': 'password',
@@ -25,25 +25,12 @@ class GetToken(APIView):
             }
         
         header = {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/x-www-form-urlencoded'
         }
 
-        response = requests.post(
-            url="https://daleelapi.com/api/v1/oauth/token", 
-            params= None,
-            headers={'Content-Type': 'application/json'}, 
-            data={
-            'grant_type': 'password',
-            'client_id': '2',
-            'client_secret': 'D1uvg3aUd79fDIvqduYlaV3q1b59XztrPPooADyDrIo=',
-            'username': 'merchants.api@daleelstore.com',
-            'password': 'ABC12345'
-            },
-            auth= None,
-            allow_redirects= True
-            )
-        token = response.json()
+        response = requests.post(url=url, headers=header, data=payload)
         
+        token = response.json()
         return Response(data=token)
     
     # curl -X POST "https://daleelapi.com/api/v1/oauth/token" -H "Content-Type: application/json" -d '{"grant_type": "password", "client_id": "2", "client_secret": "D1uvg3aUd79fDIvqduYlaV3q1b59XztrPPooADyDrIo=", "username": "merchants.api@daleelstore.com", "password": "ABC12345"}'
@@ -54,7 +41,7 @@ class RefreshToken(APIView):
         url = "https://daleelapi.com/api/v1/oauth/token"
         
         headers = {
-            'Content-Type': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
             'Authorization': 'token eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImp0aSI6IjI4NWQyYWZhYzcyYzNkYTU2NTg5MWUwMTIzMmE5Y2U1ZTU2Yjc0M2Y0OTRmZTU5ZjA0MzJjOWZjMzA1Yzk0ZDExNDI1M2VkZTZkZjMzNDVlIn0.eyJhdWQiOiIyIiwianRpIjoiMjg1ZDJhZmFjNzJjM2RhNTY1ODkxZTAxMjMyYTljZTVlNTZiNzQzZjQ5NGZlNTlmMDQzMmM5ZmMzMDVjOTRkMTE0MjUzZWRlNmRmMzM0NWUiLCJpYXQiOjE2NTQxNjI1ODMsIm5iZiI6MTY1NDE2MjU4MywiZXhwIjoxNjg1Njk4NTgzLCJzdWIiOiIiLCJzY29wZXMiOlsiKiJdfQ.E-ikupArlD7LRFD-j6z-1drWXJedwG9_Bo9LbFOpMPjFyVprOMiQ9F9XnsXfTEiBmVbUjl2wSzYtPuKjbndYkU8JvfVNASP-UAuE44l8OkyB1E10UabXyc2kgEMGDe6DtYbBULE5kX8sStnNLdwHGR1iknlXlT4TW9NFFto6w0KIg_T9XlCmrZrFHsP35dlbTRl229L5WCQmIexnU4U6a8UWBSKCjjeD673e3iEzK_FkTDdrgTyVb_G_85sUIFElPdCjSbqKDYmW9L02bOpeAwjDLSB7qv0W3rLbthEaGx0SHFwUYjjr23ygfdwTp6BUlte_iekezQKYAeMgS7LixEFW0anUPhlHsLcfvn5H8bka4wVkarXERw_2FQU7-5x2Flrw3trijU7L2EVKhNgcWnicWDT-YarWiAnhIEzjMQ8H4iTNHivsL69L9h2PVwvdF3Bdm28M8UsPNLQAsiAlNiXlvcRTIsYh2l7ssiUV_Xg8PEGfjw7Fu22se0haBnbOwXC6bYssWM6awLZKankEbqNqSOlK6unhVuCJ2UOVKDcE0fUQe0muuVnUaywuHHYrT_BNecxsMTtBLl6JbBNbvnYco4Mswzx7ZJHroRJnbwCUrN9QrmhN7cdh8H52I5yNg_g_bBjaOr4dLuM0Xpp81YjfVOlMfqZgqEHkfEP9f0Y'
         }
         
