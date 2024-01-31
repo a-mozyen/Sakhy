@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from keys import jwt_secret
 
 def create_token(token_type: str, access_token: str, refresh_token: str):
-    payload = dict(
+    payload = dict(    # **add expiru time to the token**
         token_type=token_type,
         access_token=access_token,
         refresh_token=refresh_token
