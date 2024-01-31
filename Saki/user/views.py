@@ -10,6 +10,7 @@ from .models import User, Otp
 from random import randint
 from keys import unifonic_key
 import requests
+from Saki.variables import otp_expiry
 
 
 class Register(APIView):
@@ -47,11 +48,11 @@ class Login(APIView):
         Otp.objects.create(
             user=user,
             code=otp,
-            expirey=timezone.now()+timezone.timedelta(minutes=5),
+            expirey=otp_expiry,
             utilized=False
         )
         
-        # sending a request to unufonic api.
+        # sending a request to unifonic api.
         url = 'https://el.cloud.unifonic.com/rest/SMS/messages'
         param = {
             "AppSid": unifonic_key,
@@ -137,12 +138,13 @@ class UserProfile(APIView):
         else:
             return Response(data=serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def delete(self, request):
-        user = User.objects.get(id=request.user.id)
-        user.delete()
-        response = Response(data="User deleted", status=status.HTTP_204_NO_CONTENT)
-        response.delete_cookie("jwt")
-        return response
+    # **give permission to admin only.**
+    # def delete(self, request):
+    #     user = User.objects.get(id=request.user.id)
+    #     user.delete()
+    #     response = Response(data="User deleted", status=status.HTTP_204_NO_CONTENT)
+    #     response.delete_cookie("jwt")
+    #     return response
 
 
 class Logout(APIView):
