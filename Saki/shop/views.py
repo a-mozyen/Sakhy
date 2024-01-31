@@ -3,228 +3,235 @@ from rest_framework.response import Response
 from rest_framework import status, exceptions
 from .serializers import (StoreSerializer, CouponSerializer, OrderSerializer, 
                           AddStoreSerializer, AddCouponSerializer)
-from user.serializers import UserSerializer
 from .models import Order, Coupon, Store
 from user.models import User
 from user.authentications import CustomAuthentication
 from rest_framework.permissions import IsAuthenticated
 import requests
-import json
 from .daleel_tokens import create_token, daleel_token
+from Saki.keys import daleel_client_secret
+
+'''
+ask for the token in request header, then parse the data to get the token data.
+'''
 
 
-# class GetToken(APIView):
-#     def post(self, request):
-#         url = "https://daleelapi.com/api/v1/oauth/token"
+# curl -X POST "https://daleelapi.com/api/v1/oauth/token" -H "Content-Type: application/json" -d '{"grant_type": "password", "client_id": "2", "client_secret": "D1uvg3aUd79fDIvqduYlaV3q1b59XztrPPooADyDrIo=", "username": "merchants.api@daleelstore.com", "password": "ABC12345"}'
+# Daleel store api's
+# auth api's
+class GetToken(APIView):
+    def post(self, request):
+        url = "https://daleelapi.com/api/v1/oauth/token"
 
-#         payload = {
-#             'grant_type': 'password',
-#             'client_id': '2',
-#             'client_secret': 'D1uvg3aUd79fDIvqduYlaV3q1b59XztrPPooADyDrIo=',
-#             'username': 'merchants.api@daleelstore.com',
-#             'password': 'ABC12345'
-#             }
+        payload = {
+            'grant_type': 'password',
+            'client_id': '2',
+            'client_secret': daleel_client_secret,
+            'username': 'merchants.api@daleelstore.com',
+            'password': 'ABC12345'
+            }
         
-#         header = {
-#         'Content-Type': 'application/x-www-form-urlencoded'
-#         # 'Content-Type': 'application/json'
-#         }
+        header = {
+        'Content-Type': 'application/x-www-form-urlencoded'
+        # 'Content-Type': 'application/json'
+        }
 
-#         get_token = requests.post(url=url, headers=header, data=payload)
-#         token = get_token.json()
+        get_token = requests.post(url=url, headers=header, data=payload)
+        token = get_token.json()
 
-#         daleel_auth_token = create_token(
-#             token_type=token['token_type'], 
-#             access_token=token['access_token'],
-#             refresh_token=token['refresh_token']
-#             )
-#         response = Response(data='Successfull', status=status.HTTP_201_CREATED)
-#         response.set_cookie(key='daleeljwt', value=daleel_auth_token, httponly=True)
+        daleel_auth_token = create_token(
+            token_type=token['token_type'], 
+            access_token=token['access_token'],
+            refresh_token=token['refresh_token']
+            )
+        response = Response(data='Successfull', status=status.HTTP_201_CREATED)
+        response.set_cookie(key='daleeljwt', value=daleel_auth_token, httponly=True)
         
-#         return response
-#         # return Response(data=token)
-    
-#     # curl -X POST "https://daleelapi.com/api/v1/oauth/token" -H "Content-Type: application/json" -d '{"grant_type": "password", "client_id": "2", "client_secret": "D1uvg3aUd79fDIvqduYlaV3q1b59XztrPPooADyDrIo=", "username": "merchants.api@daleelstore.com", "password": "ABC12345"}'
-    
-
-# class RefreshToken(APIView):
-#     def post(self, request):
-#         token = daleel_token(request=request)
-#         refresh_token = token['refresh_token']
-
-#         url = "https://daleelapi.com/api/v1/oauth/token"
-        
-#         headers = {
-#             'Content-Type': 'application/x-www-form-urlencoded'
-#         }
-        
-#         payload = {
-#             "grant_type": "refresh_token",
-#             "refresh_token": refresh_token,
-#             "client_id": "2",
-#             "client_secret": "D1uvg3aUd79fDIvqduYlaV3q1b59XztrPPooADyDrIo="
-#         }
-        
-#         response = requests.post(url=url, headers=headers, data=payload)
-#         re_token = response.json()
-
-#         new_token = create_token(
-#             token_type=re_token['token_type'], 
-#             access_token=re_token['access_token'],
-#             refresh_token=re_token['refresh_token']
-#         )
-
-#         response = Response(status=status.HTTP_201_CREATED)
-#         response.set_cookie(key='daleeljwt', value=new_token, httponly=True)
-        
-#         return response
-
-
-# class ListAllItems(APIView):
-#     def post(self, request):
-#         token = daleel_token(request=request)
-#         access_token = token['access_token']
-#         token_type = token['token_type']
-
-
-#         url = "https://daleelapi.com/api/v1/get_items"
-
-#         headers = {
-#         'Content-Type': 'application/json',#x-www-form-urlencoded
-#         'Authorization': f'{token_type} {access_token}',
-#         'lang': 'ar'
-#         }
-
-#         payload = {}
-        
-#         response = requests.request("POST", url, headers=headers, data=payload)
-#         items = response.json()
-
-#         return Response(data=items)
+        return response
+        # return Response(data=token)
     
 
-# class CheckAvailablity(APIView):
-#     def post(self, request):
-#         token = daleel_token(request=request)
-#         access_token = token['access_token']
-#         token_type = token['token_type']
+class RefreshToken(APIView):
+    def post(self, request):
+        token = daleel_token(request=request)
+        refresh_token = token['refresh_token']
 
-#         url = "https://daleelapi.com/api/v1/check_item"
+        url = "https://daleelapi.com/api/v1/oauth/token"
+        
+        headers = {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+        
+        payload = {
+            "grant_type": "refresh_token",
+            "refresh_token": refresh_token,
+            "client_id": "2",
+            "client_secret": daleel_client_secret
+        }
+        
+        response = requests.post(url=url, headers=headers, data=payload)
+        re_token = response.json()
 
-#         headers = {
-#             # 'Content-Type': 'application/json',
-#             'Content-Type': 'application/x-www-form-urlencoded',
-#             'Authorization': f'{token_type} {access_token}'
-#             }
+        new_token = create_token(
+            token_type=re_token['token_type'], 
+            access_token=re_token['access_token'],
+            refresh_token=re_token['refresh_token']
+        )
+
+        response = Response(status=status.HTTP_201_CREATED)
+        response.set_cookie(key='daleeljwt', value=new_token, httponly=True)
         
-#         item_id = request.data.get('item_id')
-#         quantity = request.data.get('quantity')
+        return response
+
+# Store api's
+class ListAllItems(APIView):
+    def post(self, request):
+        token = daleel_token(request=request)
+        access_token = token['access_token']
+        token_type = token['token_type']
+
+
+        url = "https://daleelapi.com/api/v1/get_items"
+
+        headers = {
+        'Content-Type': 'application/json',#x-www-form-urlencoded
+        'Authorization': f'{token_type} {access_token}',
+        'lang': 'ar'
+        }
+
+        payload = {}
         
-#         payload = {
-#             "item_id": item_id,
-#             "qty": quantity
-#         }
-        
-#         response = requests.request("POST", url, headers=headers, data=payload)
-#         check = response.json()
-        
-#         return Response(data=check)
+        response = requests.request("POST", url, headers=headers, data=payload)
+        items = response.json()
+
+        return Response(data=items)
     
 
-# class CheckBalance(APIView):
-#     def post(self, request):
-#         token = daleel_token(request=request)
-#         access_token = token['access_token']
-#         token_type = token['token_type']
+class CheckAvailablity(APIView):
+    def post(self, request):
+        token = daleel_token(request=request)
+        access_token = token['access_token']
+        token_type = token['token_type']
 
-#         url = "https://daleelapi.com/api/v1/get_balance"
+        url = "https://daleelapi.com/api/v1/check_item"
 
-#         headers = {
-#         'Content-Type': 'application/json',
-#         'Authorization': f'{token_type} {access_token}'
-#         }
-
-#         payload = {}
-
-#         response = requests.request("POST", url, headers=headers, data=payload)
-#         balance = response.json()
-
-#         return Response(data=balance)
+        headers = {
+            # 'Content-Type': 'application/json',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Authorization': f'{token_type} {access_token}'
+            }
+        
+        item_id = request.data.get('item_id')
+        quantity = request.data.get('quantity')
+        
+        payload = {
+            "item_id": item_id,
+            "qty": quantity
+        }
+        
+        response = requests.request("POST", url, headers=headers, data=payload)
+        check = response.json()
+        
+        return Response(data=check)
     
 
-# class Purchase(APIView):
-#     def post(self, request):
-#         token = daleel_token(request=request)
-#         access_token = token['access_token']
-#         token_type = token['token_type']
+class CheckBalance(APIView):
+    def post(self, request):
+        token = daleel_token(request=request)
+        access_token = token['access_token']
+        token_type = token['token_type']
 
-#         url = "https://daleelapi.com/api/v1/purchase"
+        url = "https://daleelapi.com/api/v1/get_balance"
 
-#         headers = {
-#         # 'Content-Type': 'application/json',
-#         'Content-Type': 'application/x-www-form-urlencoded',
-#         'Authorization': f'{token_type} {access_token}'
-#         }
+        headers = {
+        'Content-Type': 'application/json',
+        'Authorization': f'{token_type} {access_token}'
+        }
 
-#         item_id = request.data.get('item_id')
-#         quantity = request.data.get('quantity')
+        payload = {}
 
-#         payload = {
-#             "item_id": "31",#item_id,
-#             "qty": "1"#quantity
-#         }
-        
-#         response = requests.request("POST", url, headers=headers, data=payload)
-#         purchase = response.json()
+        response = requests.request("POST", url, headers=headers, data=payload)
+        balance = response.json()
 
-#         return Response(data=purchase)
-
-
-# class PurchaseDetails(APIView):
-#     def post(self, request):
-#         token = daleel_token(request=request)
-#         access_token = token['access_token']
-#         token_type = token['token_type']
-
-#         url = "https://daleelapi.com/api/v1/purchase_details"
-
-#         headers = {
-#         # 'Content-Type': 'application/json',
-#         'Content-Type': 'application/x-www-form-urlencoded',
-#         'Authorization': f'{token_type} {access_token}'
-#         }
-
-#         Purchase_id = request.data.get('Purchase_id')
-#         payload = {
-#             "purchase_id": Purchase_id
-#         }
-        
-#         response = requests.request("POST", url, headers=headers, data=payload)
-#         details = response.json()
-
-#         return Response(data=details)
-
-
-# class AllPurchases(APIView):
-#     def post(self, request):
-#         token = daleel_token(request=request)
-#         access_token = token['access_token']
-#         token_type = token['token_type']
-
-#         url = "https://daleelapi.com/api/v1/all_purchase"
-
-#         payload = {}
-
-#         headers = {
-#         'Authorization': f'{token_type} {access_token}'
-#         }
-        
-#         response = requests.request("POST", url, headers=headers, data=payload)
-#         purcheses = response.json()
-
-#         return Response(data=purcheses)
+        return Response(data=balance)
     
 
+class Purchase(APIView):
+    def post(self, request):
+        token = daleel_token(request=request)
+        access_token = token['access_token']
+        token_type = token['token_type']
+
+        url = "https://daleelapi.com/api/v1/purchase"
+
+        headers = {
+        # 'Content-Type': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': f'{token_type} {access_token}'
+        }
+
+        item_id = request.data.get('item_id')
+        quantity = request.data.get('quantity')
+
+        payload = {
+            "item_id": item_id,
+            "qty": quantity
+        }
+        
+        response = requests.request("POST", url, headers=headers, data=payload)
+        purchase = response.json()
+
+        return Response(data=purchase)
+
+
+class PurchaseDetails(APIView):
+    def post(self, request):
+        token = daleel_token(request=request)
+        access_token = token['access_token']
+        token_type = token['token_type']
+
+        url = "https://daleelapi.com/api/v1/purchase_details"
+
+        headers = {
+        # 'Content-Type': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization': f'{token_type} {access_token}'
+        }
+
+        Purchase_id = request.data.get('Purchase_id')
+        payload = {
+            "purchase_id": Purchase_id
+        }
+        
+        response = requests.request("POST", url, headers=headers, data=payload)
+        details = response.json()
+
+        return Response(data=details)
+
+
+class AllPurchases(APIView):
+    def post(self, request):
+        token = daleel_token(request=request)
+        access_token = token['access_token']
+        token_type = token['token_type']
+
+        url = "https://daleelapi.com/api/v1/all_purchase"
+
+        payload = {}
+
+        headers = {
+        'Authorization': f'{token_type} {access_token}'
+        }
+        
+        response = requests.request("POST", url, headers=headers, data=payload)
+        purcheses = response.json()
+
+        return Response(data=purcheses)
+    
+
+
+
+# Manual store management
 class AddStore(APIView):
     '''
     
@@ -352,4 +359,3 @@ class UserOrders(APIView):
         serializer = OrderSerializer(orders, many=True)
 
         return Response(data=serializer.data, status=status.HTTP_200_OK)
-
